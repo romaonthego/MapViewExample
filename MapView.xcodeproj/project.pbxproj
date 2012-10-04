@@ -16,6 +16,8 @@
 		300BA812161E50BF00F4423B /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 300BA811161E50BF00F4423B /* Default.png */; };
 		300BA814161E50BF00F4423B /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 300BA813161E50BF00F4423B /* Default@2x.png */; };
 		300BA816161E50BF00F4423B /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 300BA815161E50BF00F4423B /* Default-568h@2x.png */; };
+		300BA82F161E513900F4423B /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 300BA82D161E513900F4423B /* Icon.png */; };
+		300BA830161E513900F4423B /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 300BA82E161E513900F4423B /* Icon@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +34,8 @@
 		300BA811161E50BF00F4423B /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		300BA813161E50BF00F4423B /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
 		300BA815161E50BF00F4423B /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		300BA82D161E513900F4423B /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		300BA82E161E513900F4423B /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,7 +55,8 @@
 		300BA7F0161E50BF00F4423B = {
 			isa = PBXGroup;
 			children = (
-				300BA805161E50BF00F4423B /* MapView */,
+				300BA805161E50BF00F4423B /* Application */,
+				300BA827161E510400F4423B /* Library */,
 				300BA7FE161E50BF00F4423B /* Frameworks */,
 				300BA7FC161E50BF00F4423B /* Products */,
 			);
@@ -75,19 +80,22 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		300BA805161E50BF00F4423B /* MapView */ = {
+		300BA805161E50BF00F4423B /* Application */ = {
 			isa = PBXGroup;
 			children = (
 				300BA80E161E50BF00F4423B /* AppDelegate.h */,
 				300BA80F161E50BF00F4423B /* AppDelegate.m */,
 				300BA806161E50BF00F4423B /* Supporting Files */,
+				300BA828161E511600F4423B /* Classes */,
 			);
+			name = Application;
 			path = MapView;
 			sourceTree = "<group>";
 		};
 		300BA806161E50BF00F4423B /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				300BA82C161E512700F4423B /* Images */,
 				300BA807161E50BF00F4423B /* MapView-Info.plist */,
 				300BA808161E50BF00F4423B /* InfoPlist.strings */,
 				300BA80B161E50BF00F4423B /* main.m */,
@@ -97,6 +105,53 @@
 				300BA815161E50BF00F4423B /* Default-568h@2x.png */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		300BA827161E510400F4423B /* Library */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Library;
+			sourceTree = "<group>";
+		};
+		300BA828161E511600F4423B /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				300BA829161E511600F4423B /* Controllers */,
+				300BA82A161E511600F4423B /* Helpers */,
+				300BA82B161E511600F4423B /* Views */,
+			);
+			path = Classes;
+			sourceTree = "<group>";
+		};
+		300BA829161E511600F4423B /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
+		300BA82A161E511600F4423B /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		300BA82B161E511600F4423B /* Views */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		300BA82C161E512700F4423B /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				300BA82D161E513900F4423B /* Icon.png */,
+				300BA82E161E513900F4423B /* Icon@2x.png */,
+			);
+			path = Images;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -154,6 +209,8 @@
 				300BA812161E50BF00F4423B /* Default.png in Resources */,
 				300BA814161E50BF00F4423B /* Default@2x.png in Resources */,
 				300BA816161E50BF00F4423B /* Default-568h@2x.png in Resources */,
+				300BA82F161E513900F4423B /* Icon.png in Resources */,
+				300BA830161E513900F4423B /* Icon@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,6 +295,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MapView/MapView-Prefix.pch";
 				INFOPLIST_FILE = "MapView/MapView-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -249,6 +307,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MapView/MapView-Prefix.pch";
 				INFOPLIST_FILE = "MapView/MapView-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
