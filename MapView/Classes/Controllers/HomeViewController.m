@@ -228,6 +228,12 @@
     _mapView.mapType = sender.selectedSegmentIndex;
 }
 
+- (NSString *)placemarkDescription:(CLPlacemark *)placemark
+{
+    NSArray *data = [placemark.description componentsSeparatedByString:@"@"];
+    return [data objectAtIndex:0];
+}
+
 - (void)showPinCoordinate:(CLLocationCoordinate2D)coordinate
 {
     _hasPin = YES;
@@ -248,7 +254,7 @@
         if (error || [placemarks count] == 0)
             return;
         CLPlacemark *placemark = [placemarks objectAtIndex:0];
-        annotation.subtitle = placemark.description;
+        annotation.subtitle = [self placemarkDescription:placemark];
     }];
 }
 
@@ -284,6 +290,8 @@
     if (searchText == nil || [searchText isEqualToString:@""]) {
         _clearButton.enabled = NO;
         _doneButton.title = @"Done";
+        [_mapView removeAnnotations:_annotations];
+        [_annotations removeAllObjects];
     } else {
         _clearButton.enabled = YES;
         _doneButton.title = @"Cancel";
@@ -319,9 +327,9 @@
             annotation.coordinate = placemark.location.coordinate;
             annotation.title = [placemark.areasOfInterest componentsJoinedByString:@", "];
             if (!annotation.title || [annotation.title isEqualToString:@""]) {
-                annotation.title = placemark.description;
+                annotation.title = [self placemarkDescription:placemark];
             } else {
-                annotation.subtitle = placemark.description;
+                annotation.subtitle = [self placemarkDescription:placemark];
             }
             [_annotations addObject:annotation];
             [_mapView addAnnotation:annotation];
@@ -356,7 +364,7 @@
             if (error || [placemarks count] == 0)
                 return;
             CLPlacemark *placemark = [placemarks objectAtIndex:0];
-            __annotation.subtitle = placemark.description;
+            __annotation.subtitle = [self placemarkDescription:placemark];
         }];
     }
 }
@@ -382,7 +390,7 @@
     
     UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
     rightButton.tag = 1;
-    customPinView.rightCalloutAccessoryView = rightButton;
+  //  customPinView.rightCalloutAccessoryView = rightButton;
     
     
     UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -390,7 +398,6 @@
     [leftButton setFrame:CGRectMake(0, 0, 30, 30)];
     [leftButton setImage:[UIImage imageNamed:@"Pin_Icon_View"] forState:UIControlStateNormal];
     leftButton.enabled = NO;
-    customPinView.rightCalloutAccessoryView = rightButton;
     customPinView.leftCalloutAccessoryView = leftButton;
     
     [self loadStreetViewForCoordinate:__annotation.coordinate completion:^(NSString *panoId) {
