@@ -8,6 +8,7 @@
 
 #import "HomeViewController.h"
 #import "SettingsViewController.h"
+#import "BookmarksViewController.h"
 
 @interface HomeViewController ()
 
@@ -37,6 +38,19 @@
         _mapView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         [self.view addSubview:_mapView];
         
+        _overlayView = [[UIView alloc] initWithFrame:_mapView.frame];
+        _overlayView.backgroundColor = [UIColor blackColor];
+        _overlayView.alpha = 0.7;
+        _overlayView.autoresizingMask = _mapView.autoresizingMask;
+        _overlayView.hidden = YES;
+        [self.view addSubview:_overlayView];
+        
+        UIButton *cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        cancelButton.frame = _overlayView.bounds;
+        cancelButton.autoresizingMask = _overlayView.autoresizingMask;
+        [cancelButton addTarget:self action:@selector(cancelSearch) forControlEvents:UIControlEventTouchDown];
+        [_overlayView addSubview:cancelButton];
+        
         _searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44)];
         _searchBar.placeholder = @"Search or Address";
         _searchBar.showsBookmarkButton = YES;
@@ -57,9 +71,12 @@
         
         UIBarButtonItem *spacing = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
         
-        UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:@[@"Standard", @"Hybrid", @"Satellite"]];
+        UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:@[@"Standard", @"Satellite", @"Hybrid"]];
         segmentedControl.selectedSegmentIndex = 0;
         segmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
+        [segmentedControl addTarget:self
+                             action:@selector(segmentedControlChanged:)
+                   forControlEvents:UIControlEventValueChanged];
         UIBarButtonItem *segmentedButton = [[UIBarButtonItem alloc] initWithCustomView:segmentedControl];
         
         
@@ -80,6 +97,9 @@
     [UIView animateWithDuration:0.25 animations:^{
         _navBar.y = -44;
         _searchBar.y = 0;
+        _overlayView.alpha = 0;
+    } completion:^(BOOL finished) {
+        _overlayView.hidden = YES;
     }];
 }
 
@@ -104,14 +124,22 @@
     [self cancelSearch];
 }
 
+- (void)segmentedControlChanged:(UISegmentedControl *)sender
+{
+    _mapView.mapType = sender.selectedSegmentIndex;
+}
+
 #pragma mark -
 #pragma mark UISearchBarDelegate
 
 - (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
 {
+    _overlayView.alpha = 0;
+    _overlayView.hidden = NO;
     [UIView animateWithDuration:0.25 animations:^{
         _navBar.y = 0;
         _searchBar.y = 44;
+        _overlayView.alpha = 0.8;
     }];
     return YES;
 }
@@ -129,7 +157,13 @@
 
 - (void)searchBarBookmarkButtonClicked:(UISearchBar *)searchBar
 {
-    
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:[[BookmarksViewController alloc] init]];
+    [self presentViewController:navigationController animated:YES completion:nil];
+}
+
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
+{
+    [self cancelSearch];
 }
 
 @end

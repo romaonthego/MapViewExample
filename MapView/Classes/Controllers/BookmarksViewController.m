@@ -18,7 +18,14 @@
 {
     self = [super initWithStyle:style];
     if (self) {
-        // Custom initialization
+        self.navigationItem.title = @"Recents";
+        self.navigationItem.prompt = @"Choose a recent search";
+        
+        UIBarButtonItem *clearButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Clear" style:UIBarButtonItemStyleBordered target:self action:@selector(clearButtonPressed)];
+        self.navigationItem.leftBarButtonItem = clearButtonItem;
+        
+        UIBarButtonItem *doneButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleBordered target:self action:@selector(doneButtonPressed)];
+        self.navigationItem.rightBarButtonItem = doneButtonItem;
     }
     return self;
 }
@@ -116,6 +123,31 @@
      // Pass the selected object to the new view controller.
      [self.navigationController pushViewController:detailViewController animated:YES];
      */
+}
+
+#pragma mark -
+#pragma mark Button actions
+
+- (void)doneButtonPressed
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)clearButtonPressed
+{
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self
+                                                    cancelButtonTitle:@"Cancel"
+                                               destructiveButtonTitle:@"Clear All Recents"
+                                                    otherButtonTitles:nil];
+    [actionSheet showInView:self.view];
+}
+
+#pragma mark -
+#pragma mark UIActionSheetDelegate
+
+- (void)actionSheet:(UIActionSheet *)actionSheet willDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+    
 }
 
 @end

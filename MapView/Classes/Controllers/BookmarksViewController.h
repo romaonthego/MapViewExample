@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface BookmarksViewController : UITableViewController
+@interface BookmarksViewController : UITableViewController <UIActionSheetDelegate>
 
 @end
