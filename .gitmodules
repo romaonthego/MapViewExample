@@ -1,0 +1,3 @@
+[submodule "Library/REUIKitAdditions"]
+	path = Library/REUIKitAdditions
+	url = git://github.com/romaonthego/REUIKitAdditions.git
