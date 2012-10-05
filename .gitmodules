@@ -1,3 +1,6 @@
 [submodule "Library/REUIKitAdditions"]
 	path = Library/REUIKitAdditions
 	url = git://github.com/romaonthego/REUIKitAdditions.git
+[submodule "Library/AFNetworking"]
+	path = Library/AFNetworking
+	url = git://github.com/AFNetworking/AFNetworking.git

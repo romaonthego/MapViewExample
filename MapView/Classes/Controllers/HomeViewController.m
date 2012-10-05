@@ -11,6 +11,7 @@
 #import "BookmarksViewController.h"
 #import "Annotation.h"
 #import "DetailsViewController.h"
+#import "AFJSONRequestOperation.h"
 
 @interface HomeViewController ()
 
@@ -18,9 +19,9 @@
 
 @implementation HomeViewController
 
-- (void)navigate:(NSString *)urlString
+- (void)navigate:(NSString *)panoId
 {
-    _currentURLString = urlString;
+    _currentURLString = [NSString stringWithFormat:@"https://maps.gstatic.com/m/streetview/?panoid=%@", panoId];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:_currentURLString]];
     [_webView loadRequest:request];
 }
@@ -98,11 +99,7 @@
     _webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _webView.hidden = YES;
     [self.view addSubview:_webView];
-    /*
-     Annotation *annotation = [[Annotation alloc] init];
-     annotation.coordinate = CLLocationCoordinate2DMake(37.771008, -122.41175);
-     annotation.title = @"Test";
-     [_mapView addAnnotation:annotation];*/
+
     _annotations = [[NSMutableArray alloc] init];
     
     _geocoder = [[CLGeocoder alloc] init];
@@ -152,7 +149,7 @@
     [self setMapRegionForMinLat:minLatitude minLong:minLongitude maxLat:maxLatitude maxLong:maxLongitude];
 }
 
-- (void) setMapRegionForMinLat:(double)minLatitude minLong:(double)minLongitude maxLat:(double)maxLatitude maxLong:(double)maxLongitude
+- (void)setMapRegionForMinLat:(double)minLatitude minLong:(double)minLongitude maxLat:(double)maxLatitude maxLong:(double)maxLongitude
 {
     MKCoordinateRegion region;
     region.center.latitude = (minLatitude + maxLatitude) / 2;
@@ -179,6 +176,24 @@
     } completion:^(BOOL finished) {
         _overlayView.hidden = YES;
     }];
+}
+
+- (void)loadStreetViewForCoordinate:(CLLocationCoordinate2D)coordinate completion:(void(^)(NSString *panoId))completion
+{
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://maps.google.com/cbk?output=json&ll=%f,%f", coordinate.latitude, coordinate.longitude]];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    
+    AFJSONRequestOperation *operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
+        NSDictionary *data = [JSON valueForKeyPath:@"Location"];
+        if (data) {
+            NSString *panoId = [data objectForKey:@"panoId"];
+            if (panoId && completion) {
+                completion(panoId);
+            }
+        }
+    } failure:nil];
+    
+    [operation start];
 }
 
 #pragma mark -
@@ -255,8 +270,12 @@
         [_mapView removeAnnotations:_annotations];
         [_annotations removeAllObjects];
         
+        NSInteger index = -1;
         for (CLPlacemark *placemark in placemarks) {
+            index++;
             Annotation *annotation = [[Annotation alloc] init];
+            annotation.placemark = placemark;
+            annotation.tag = index;
             annotation.coordinate = placemark.location.coordinate;
             annotation.title = [placemark.areasOfInterest componentsJoinedByString:@", "];
             if (!annotation.title || [annotation.title isEqualToString:@""]) {
@@ -291,6 +310,8 @@
     static NSString* AnnotationIdentifier = @"AnnotationIdentifier";
     
     
+    Annotation *__annotation = annotation;
+    
     MKPinAnnotationView* customPinView = [[MKPinAnnotationView alloc]
                                            initWithAnnotation:annotation reuseIdentifier:AnnotationIdentifier];
     customPinView.pinColor = MKPinAnnotationColorRed;
@@ -310,6 +331,11 @@
     customPinView.rightCalloutAccessoryView = rightButton;
     customPinView.leftCalloutAccessoryView = leftButton;
     
+    [self loadStreetViewForCoordinate:__annotation.placemark.location.coordinate completion:^(NSString *panoId) {
+        __annotation.panoId = panoId;
+        leftButton.enabled = YES;
+    }];
+    
     return customPinView;
 }
 
@@ -318,8 +344,13 @@
     if (view.annotation == mapView.userLocation)
         return;
     if (control.tag == 0) {
-        [self navigate:@"https://maps.gstatic.com/m/streetview/?panoid=9u_xK2zj2al6IBB78x5eTw"];
+        Annotation *__annotation = view.annotation;
+        [self navigate:__annotation.panoId];
+        _webView.alpha = 0;
         _webView.hidden = NO;
+        [UIView animateWithDuration:0.3 animations:^{
+            _webView.alpha = 1;
+        } completion:nil];
     } else {
         DetailsViewController *detailsViewController = [[DetailsViewController alloc] initWithStyle:UITableViewStyleGrouped];
         detailsViewController.title = @"Info";
@@ -332,11 +363,20 @@
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
-    [_webView stringByEvaluatingJavaScriptFromString:@"document.getElementsByClassName('close-button')[0].outerHTML ='';"];
+    [_webView stringByEvaluatingJavaScriptFromString:@"document.getElementsByClassName('close-button')[0].addEventListener('click', function() { window.location='view://close'; }, false);"];
 }
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
+    if ([request.URL.absoluteString isEqualToString:@"view://close"]) {
+        [UIView animateWithDuration:0.3 animations:^{
+            _webView.alpha = 0;
+        } completion:^(BOOL finished) {
+            _webView.alpha = 1;
+            _webView.hidden = YES;
+        }];
+        return NO;
+    }
     if ([request.URL.absoluteString isEqualToString:_currentURLString]) {
         return YES;
     }

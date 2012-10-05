@@ -11,9 +11,12 @@
 
 @interface Annotation : NSObject <MKAnnotation>
 
-@property (nonatomic, readwrite) CLLocationCoordinate2D coordinate;
+@property (readwrite, nonatomic) CLLocationCoordinate2D coordinate;
 
-@property (nonatomic, copy) NSString *title;
-@property (nonatomic, copy) NSString *subtitle;
+@property (copy, nonatomic) NSString *title;
+@property (copy, nonatomic) NSString *subtitle;
+@property (readwrite, nonatomic) NSInteger tag;
+@property (strong, nonatomic) CLPlacemark *placemark;
+@property (copy, nonatomic) NSString *panoId;
 
 @end
