@@ -9,6 +9,8 @@
 #import "HomeViewController.h"
 #import "SettingsViewController.h"
 #import "BookmarksViewController.h"
+#import "Annotation.h"
+#import "DetailsViewController.h"
 
 @interface HomeViewController ()
 
@@ -36,6 +38,7 @@
         
         _mapView = [[MKMapView alloc] initWithFrame:CGRectMake(0, 44, self.view.frame.size.width, self.view.frame.size.height -  88)];
         _mapView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        _mapView.delegate = self;
         [self.view addSubview:_mapView];
         
         _overlayView = [[UIView alloc] initWithFrame:_mapView.frame];
@@ -81,6 +84,15 @@
         
         
         _toolBar.items = @[mapButtonItem, spacing, segmentedButton, spacing];
+        
+        /*
+        Annotation *annotation = [[Annotation alloc] init];
+        annotation.coordinate = CLLocationCoordinate2DMake(37.771008, -122.41175);
+        annotation.title = @"Test";
+        [_mapView addAnnotation:annotation];*/
+        _annotations = [[NSMutableArray alloc] init];
+        
+        _geocoder = [[CLGeocoder alloc] init];
     }
     return self;
 }
@@ -164,6 +176,74 @@
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
     [self cancelSearch];
+    
+    [_geocoder geocodeAddressString:searchBar.text inRegion:nil completionHandler:^(NSArray *placemarks, NSError *error) {
+        if (error) {
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"An error occurred." message:@"No results found." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+            [alertView show];
+            return;
+        }
+        
+        [_mapView removeAnnotations:_annotations];
+        [_annotations removeAllObjects];
+        
+        for (CLPlacemark *placemark in placemarks) {
+            
+            Annotation *annotation = [[Annotation alloc] init];
+            annotation.coordinate = placemark.location.coordinate;
+            annotation.title = [placemark.areasOfInterest componentsJoinedByString:@", "];
+            if (!annotation.title || [annotation.title isEqualToString:@""]) {
+                annotation.title = placemark.description;
+            } else {
+                annotation.subtitle = placemark.description;
+            }
+            [_annotations addObject:annotation];
+            [_mapView addAnnotation:annotation];
+            
+            NSLog(@"info %@", placemark.description);
+        }
+    }];
+}
+
+#pragma mark -
+#pragma mark MKMapViewDelegate
+
+- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id < MKAnnotation >)annotation
+{
+    if(annotation == mapView.userLocation) return nil;
+    
+    static NSString* AnnotationIdentifier = @"AnnotationIdentifier";
+    
+    
+    MKPinAnnotationView* customPinView = [[MKPinAnnotationView alloc]
+                                           initWithAnnotation:annotation reuseIdentifier:AnnotationIdentifier];
+    customPinView.pinColor = MKPinAnnotationColorRed;
+    customPinView.animatesDrop = YES;
+    customPinView.canShowCallout = YES;
+    
+    UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+    [rightButton addTarget:self
+                    action:@selector(showDetails:)
+          forControlEvents:UIControlEventTouchUpInside];
+    customPinView.rightCalloutAccessoryView = rightButton;
+    
+    
+    UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [leftButton addTarget:self
+                   action:@selector(showDetails:)
+         forControlEvents:UIControlEventTouchUpInside];
+    [leftButton setFrame:CGRectMake(0, 0, 30, 30)];
+    [leftButton setImage:[UIImage imageNamed:@"Pin_Icon_View"] forState:UIControlStateNormal];
+    customPinView.rightCalloutAccessoryView = rightButton;
+    customPinView.leftCalloutAccessoryView = leftButton;
+    
+    return customPinView;
+}
+
+- (void)showDetails:(id)sender
+{
+    DetailsViewController *detailsViewController = [[DetailsViewController alloc] init];
+    [self.navigationController pushViewController:detailsViewController animated:YES];
 }
 
 @end

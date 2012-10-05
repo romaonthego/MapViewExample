@@ -10,7 +10,7 @@
 #import <MapKit/MapKit.h>
 #import <CoreLocation/CoreLocation.h>
 
-@interface HomeViewController : UIViewController <UISearchBarDelegate> {
+@interface HomeViewController : UIViewController <UISearchBarDelegate, MKMapViewDelegate> {
     UINavigationBar *_navBar;
     UISearchBar *_searchBar;
     MKMapView *_mapView;
@@ -20,6 +20,9 @@
     UIView *_overlayView;
     UIBarButtonItem *_clearButton;
     UIBarButtonItem *_doneButton;
+    
+    CLGeocoder *_geocoder;
+    NSMutableArray *_annotations;
 }
 
 @end
