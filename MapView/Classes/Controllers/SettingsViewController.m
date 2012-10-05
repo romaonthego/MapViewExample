@@ -14,26 +14,35 @@
 
 @implementation SettingsViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-        self.view.backgroundColor = [UIColor underPageBackgroundColor];
-    }
-    return self;
-}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
+	
+    // Custom initialization
+    self.view.backgroundColor = [UIColor underPageBackgroundColor];
+    
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [button setTitle:_hasPin ? @"Remove Pin" : @"Drop Pin" forState:UIControlStateNormal];
+    [button setFrame:CGRectMake(10, self.view.frame.size.height - 54, 300, 44)];
+    [button addTarget:self action:@selector(dropPinButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    button.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    [self.view addSubview:button];
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void)dropPinButtonPressed
+{
+    if (!_hasPin) {
+        [_delegate dropPin];
+    } else {
+        [_delegate removePin];
+    }
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 @end

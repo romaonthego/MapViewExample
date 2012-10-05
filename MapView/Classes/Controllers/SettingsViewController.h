@@ -8,6 +8,18 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol SettingsViewControllerDelegate;
+
 @interface SettingsViewController : UIViewController
+
+@property (weak, nonatomic) id <SettingsViewControllerDelegate> delegate;
+@property (readwrite, nonatomic) BOOL hasPin;
+
+@end
+
+@protocol SettingsViewControllerDelegate <NSObject>
+
+- (void)dropPin;
+- (void)removePin;
 
 @end

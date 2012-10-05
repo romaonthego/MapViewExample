@@ -9,8 +9,9 @@
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
 #import <CoreLocation/CoreLocation.h>
+#import "SettingsViewController.h"
 
-@interface HomeViewController : UIViewController <UISearchBarDelegate, MKMapViewDelegate, UIWebViewDelegate> {
+@interface HomeViewController : UIViewController <UISearchBarDelegate, MKMapViewDelegate, UIWebViewDelegate, SettingsViewControllerDelegate> {
     UINavigationBar *_navBar;
     UISearchBar *_searchBar;
     UIToolbar *_toolBar;
@@ -22,10 +23,13 @@
     
     CLGeocoder *_geocoder;
     NSMutableArray *_annotations;
+    NSMutableArray *_droppedAnnotations;
     
     UIWebView *_webView;
     
     NSString *_currentURLString;
+    
+    BOOL _hasPin;
 }
 
 @property (strong, nonatomic) MKMapView *mapView;

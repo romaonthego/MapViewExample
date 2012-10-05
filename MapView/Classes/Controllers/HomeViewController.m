@@ -7,7 +7,6 @@
 //
 
 #import "HomeViewController.h"
-#import "SettingsViewController.h"
 #import "BookmarksViewController.h"
 #import "Annotation.h"
 #import "DetailsViewController.h"
@@ -48,6 +47,10 @@
     _mapView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _mapView.delegate = self;
     [self.view addSubview:_mapView];
+    
+    UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc]
+                                         initWithTarget:self action:@selector(handleLongPress:)];
+    [self.mapView addGestureRecognizer:lpgr];
     
     _overlayView = [[UIView alloc] initWithFrame:_mapView.frame];
     _overlayView.backgroundColor = [UIColor blackColor];
@@ -91,7 +94,7 @@
     UIBarButtonItem *segmentedButton = [[UIBarButtonItem alloc] initWithCustomView:segmentedControl];
     
     
-    _toolBar.items = @[mapButtonItem, spacing, segmentedButton, spacing];
+    _toolBar.items = @[mapButtonItem, spacing, segmentedButton, spacing, _curlButton];
     
     
     _webView = [[UIWebView alloc] initWithFrame:self.view.bounds];
@@ -101,6 +104,7 @@
     [self.view addSubview:_webView];
 
     _annotations = [[NSMutableArray alloc] init];
+    _droppedAnnotations = [[NSMutableArray alloc] init];
     
     _geocoder = [[CLGeocoder alloc] init];
 }
@@ -203,6 +207,8 @@
 {
     SettingsViewController *controller = [[SettingsViewController alloc] init];
     controller.modalTransitionStyle = UIModalTransitionStylePartialCurl;
+    controller.delegate = self;
+    controller.hasPin = _hasPin;
     [self presentViewController:controller animated:YES completion:nil];
 }
 
@@ -220,6 +226,42 @@
 - (void)segmentedControlChanged:(UISegmentedControl *)sender
 {
     _mapView.mapType = sender.selectedSegmentIndex;
+}
+
+- (void)showPinCoordinate:(CLLocationCoordinate2D)coordinate
+{
+    _hasPin = YES;
+    [_mapView removeAnnotations:_droppedAnnotations];
+    [_droppedAnnotations removeAllObjects];
+    
+    Annotation *annotation = [[Annotation alloc] init];
+    annotation.placemark = nil;
+    annotation.tag = 1;
+    annotation.coordinate = coordinate;
+    annotation.title = @"Dropped Pin";
+    [self.mapView addAnnotation:annotation];
+    [_droppedAnnotations addObject:annotation];
+    
+    CLLocation *location = [[CLLocation alloc] initWithCoordinate:coordinate altitude:0 horizontalAccuracy:1 verticalAccuracy:1 course:0 speed:0 timestamp:[NSDate date]];
+    
+    [_geocoder reverseGeocodeLocation:location completionHandler:^(NSArray *placemarks, NSError *error) {
+        if (error || [placemarks count] == 0)
+            return;
+        CLPlacemark *placemark = [placemarks objectAtIndex:0];
+        annotation.subtitle = placemark.description;
+    }];
+}
+
+- (void)handleLongPress:(UIGestureRecognizer *)gestureRecognizer
+{
+    if (gestureRecognizer.state != UIGestureRecognizerStateBegan)
+        return;
+    
+    CGPoint touchPoint = [gestureRecognizer locationInView:self.mapView];
+    CLLocationCoordinate2D touchMapCoordinate =
+    [self.mapView convertPoint:touchPoint toCoordinateFromView:self.mapView];
+    
+    [self showPinCoordinate:touchMapCoordinate];
 }
 
 #pragma mark -
@@ -270,12 +312,10 @@
         [_mapView removeAnnotations:_annotations];
         [_annotations removeAllObjects];
         
-        NSInteger index = -1;
         for (CLPlacemark *placemark in placemarks) {
-            index++;
             Annotation *annotation = [[Annotation alloc] init];
             annotation.placemark = placemark;
-            annotation.tag = index;
+            annotation.tag = 0;
             annotation.coordinate = placemark.location.coordinate;
             annotation.title = [placemark.areasOfInterest componentsJoinedByString:@", "];
             if (!annotation.title || [annotation.title isEqualToString:@""]) {
@@ -303,6 +343,24 @@
     }
 }
 
+- (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view didChangeDragState:(MKAnnotationViewDragState)newState
+   fromOldState:(MKAnnotationViewDragState)oldState
+{
+    Annotation *__annotation = view.annotation;
+    if (newState == MKAnnotationViewDragStateStarting) {
+        __annotation.subtitle = @"";
+    }
+    if (newState == MKAnnotationViewDragStateEnding) {
+        CLLocation *location = [[CLLocation alloc] initWithCoordinate:__annotation.coordinate altitude:0 horizontalAccuracy:1 verticalAccuracy:1 course:0 speed:0 timestamp:[NSDate date]];
+        [_geocoder reverseGeocodeLocation:location completionHandler:^(NSArray *placemarks, NSError *error) {
+            if (error || [placemarks count] == 0)
+                return;
+            CLPlacemark *placemark = [placemarks objectAtIndex:0];
+            __annotation.subtitle = placemark.description;
+        }];
+    }
+}
+
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id < MKAnnotation >)annotation
 {
     if (annotation == mapView.userLocation) return nil;
@@ -314,9 +372,13 @@
     
     MKPinAnnotationView* customPinView = [[MKPinAnnotationView alloc]
                                            initWithAnnotation:annotation reuseIdentifier:AnnotationIdentifier];
-    customPinView.pinColor = MKPinAnnotationColorRed;
+    customPinView.pinColor = __annotation.tag == 0 ? MKPinAnnotationColorRed : MKPinAnnotationColorPurple;
     customPinView.animatesDrop = YES;
     customPinView.canShowCallout = YES;
+    
+    if (__annotation.tag == 1) {
+        customPinView.draggable = YES;
+    }
     
     UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
     rightButton.tag = 1;
@@ -331,7 +393,7 @@
     customPinView.rightCalloutAccessoryView = rightButton;
     customPinView.leftCalloutAccessoryView = leftButton;
     
-    [self loadStreetViewForCoordinate:__annotation.placemark.location.coordinate completion:^(NSString *panoId) {
+    [self loadStreetViewForCoordinate:__annotation.coordinate completion:^(NSString *panoId) {
         __annotation.panoId = panoId;
         leftButton.enabled = YES;
     }];
@@ -358,7 +420,7 @@
     }
 }
 
-#pragma mark - 
+#pragma mark -
 #pragma mark UIWebViewDelegate
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
@@ -382,6 +444,23 @@
     }
     [[UIApplication sharedApplication] openURL:request.URL];
     return NO;
+}
+
+#pragma mark -
+#pragma mark SettingsViewControllerDelegate
+
+- (void)dropPin
+{
+    [self performBlock:^{
+        [self showPinCoordinate:self.mapView.region.center];
+    } afterDelay:0.5];
+}
+
+- (void)removePin
+{
+    [_mapView removeAnnotations:_droppedAnnotations];
+    [_droppedAnnotations removeAllObjects];
+    _hasPin = NO;
 }
 
 @end
