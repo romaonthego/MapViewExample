@@ -44,6 +44,7 @@
 		300BA895161E8FF700F4423B /* AFURLConnectionOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 300BA88A161E8FF700F4423B /* AFURLConnectionOperation.m */; };
 		300BA896161E8FF700F4423B /* AFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 300BA88C161E8FF700F4423B /* AFXMLRequestOperation.m */; };
 		300BA897161E8FF700F4423B /* UIImageView+AFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 300BA88E161E8FF700F4423B /* UIImageView+AFNetworking.m */; };
+		300BA89A161EA29000F4423B /* Storage.m in Sources */ = {isa = PBXBuildFile; fileRef = 300BA899161EA29000F4423B /* Storage.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -112,6 +113,8 @@
 		300BA88C161E8FF700F4423B /* AFXMLRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFXMLRequestOperation.m; sourceTree = "<group>"; };
 		300BA88D161E8FF700F4423B /* UIImageView+AFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+AFNetworking.h"; sourceTree = "<group>"; };
 		300BA88E161E8FF700F4423B /* UIImageView+AFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+AFNetworking.m"; sourceTree = "<group>"; };
+		300BA898161EA29000F4423B /* Storage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Storage.h; sourceTree = "<group>"; };
+		300BA899161EA29000F4423B /* Storage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Storage.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -230,6 +233,8 @@
 			children = (
 				300BA861161E668E00F4423B /* Annotation.h */,
 				300BA862161E668E00F4423B /* Annotation.m */,
+				300BA898161EA29000F4423B /* Storage.h */,
+				300BA899161EA29000F4423B /* Storage.m */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -393,6 +398,7 @@
 				300BA895161E8FF700F4423B /* AFURLConnectionOperation.m in Sources */,
 				300BA896161E8FF700F4423B /* AFXMLRequestOperation.m in Sources */,
 				300BA897161E8FF700F4423B /* UIImageView+AFNetworking.m in Sources */,
+				300BA89A161EA29000F4423B /* Storage.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

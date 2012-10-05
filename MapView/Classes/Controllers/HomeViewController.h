@@ -10,8 +10,9 @@
 #import <MapKit/MapKit.h>
 #import <CoreLocation/CoreLocation.h>
 #import "SettingsViewController.h"
+#import "BookmarksViewController.h"
 
-@interface HomeViewController : UIViewController <UISearchBarDelegate, MKMapViewDelegate, UIWebViewDelegate, SettingsViewControllerDelegate> {
+@interface HomeViewController : UIViewController <UISearchBarDelegate, MKMapViewDelegate, UIWebViewDelegate, SettingsViewControllerDelegate, BookmarksViewControllerDelegate> {
     UINavigationBar *_navBar;
     UISearchBar *_searchBar;
     UIToolbar *_toolBar;
@@ -30,6 +31,8 @@
     NSString *_currentURLString;
     
     BOOL _hasPin;
+    
+    NSMutableArray *_searches;
 }
 
 @property (strong, nonatomic) MKMapView *mapView;

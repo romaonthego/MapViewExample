@@ -8,6 +8,17 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol BookmarksViewControllerDelegate;
+
 @interface BookmarksViewController : UITableViewController <UIActionSheetDelegate>
+
+@property (weak, nonatomic) NSMutableArray *searches;
+@property (weak, nonatomic) id <BookmarksViewControllerDelegate> delegate;
+
+@end
+
+@protocol BookmarksViewControllerDelegate <NSObject>
+
+- (void)selectedSavedSearch:(NSString *)search;
 
 @end

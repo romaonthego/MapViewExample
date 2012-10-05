@@ -11,6 +11,7 @@
 #import "Annotation.h"
 #import "DetailsViewController.h"
 #import "AFJSONRequestOperation.h"
+#import "Storage.h"
 
 @interface HomeViewController ()
 
@@ -104,6 +105,8 @@
     [self.view addSubview:_webView];
 
     _annotations = [[NSMutableArray alloc] init];
+    
+    _searches = [[NSMutableArray alloc] initWithArray:[Storage restoreArray]];
     _droppedAnnotations = [[NSMutableArray alloc] init];
     
     _geocoder = [[CLGeocoder alloc] init];
@@ -300,9 +303,13 @@
 
 - (void)searchBarBookmarkButtonClicked:(UISearchBar *)searchBar
 {
-    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:[[BookmarksViewController alloc] init]];
+    BookmarksViewController *bookmarksController = [[BookmarksViewController alloc] init];
+    bookmarksController.searches = _searches;
+    bookmarksController.delegate = self;
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:bookmarksController];
     [self presentViewController:navigationController animated:YES completion:nil];
 }
+
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
@@ -320,6 +327,7 @@
         [_mapView removeAnnotations:_annotations];
         [_annotations removeAllObjects];
         
+        BOOL first = YES;
         for (CLPlacemark *placemark in placemarks) {
             Annotation *annotation = [[Annotation alloc] init];
             annotation.placemark = placemark;
@@ -333,6 +341,19 @@
             }
             [_annotations addObject:annotation];
             [_mapView addAnnotation:annotation];
+            
+            if (first) {
+                NSString *result = [self placemarkDescription:placemark];
+                for (NSDictionary *info in _searches) {
+                    if ([[info objectForKey:@"result"] isEqualToString:result]) {
+                        [_searches removeObject:info];
+                        break;
+                    }
+                }
+                [_searches insertObject:@{@"search": searchBar.text, @"result": result} atIndex:0];
+                [Storage saveArray:_searches];
+            }
+            first = NO;
         }
         [self zoomToAnnotationsBounds:_annotations];
     }];
@@ -468,6 +489,15 @@
     [_mapView removeAnnotations:_droppedAnnotations];
     [_droppedAnnotations removeAllObjects];
     _hasPin = NO;
+}
+
+#pragma mark -
+#pragma mark BookmarksViewControllerDelegate
+
+- (void)selectedSavedSearch:(NSString *)search
+{
+    _searchBar.text = search;
+    [self searchBarSearchButtonClicked:_searchBar];
 }
 
 @end
