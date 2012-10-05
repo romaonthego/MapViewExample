@@ -10,10 +10,9 @@
 #import <MapKit/MapKit.h>
 #import <CoreLocation/CoreLocation.h>
 
-@interface HomeViewController : UIViewController <UISearchBarDelegate, MKMapViewDelegate> {
+@interface HomeViewController : UIViewController <UISearchBarDelegate, MKMapViewDelegate, UIWebViewDelegate> {
     UINavigationBar *_navBar;
     UISearchBar *_searchBar;
-    MKMapView *_mapView;
     UIToolbar *_toolBar;
     UIBarButtonItem *_curlButton;
     
@@ -23,6 +22,12 @@
     
     CLGeocoder *_geocoder;
     NSMutableArray *_annotations;
+    
+    UIWebView *_webView;
+    
+    NSString *_currentURLString;
 }
+
+@property (strong, nonatomic) MKMapView *mapView;
 
 @end

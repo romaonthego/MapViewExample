@@ -14,7 +14,10 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:[[HomeViewController alloc] init]];
+    HomeViewController *homeViewController = [[HomeViewController alloc] init];
+    homeViewController.title = @"Map";
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:homeViewController];
+    navigationController.delegate = self;
     navigationController.navigationBarHidden = YES;
     self.window.rootViewController = navigationController;
     self.window.backgroundColor = [UIColor whiteColor];
@@ -47,6 +50,18 @@
 - (void)applicationWillTerminate:(UIApplication *)application
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
+#pragma mark -
+#pragma mark UINavigationControllerDelegate
+
+- (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
+{
+    if ([navigationController.viewControllers count] > 1) {
+        [navigationController setNavigationBarHidden:NO animated:YES];
+    } else {
+        [navigationController setNavigationBarHidden:YES animated:YES];
+    }
 }
 
 @end
